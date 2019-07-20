@@ -1,27 +1,33 @@
-import ProfileCard from "./profileCard/ProfileCard";
-import ProfileDetails from "./profileCard/ProfileCard";
 import AboutUs from "./AboutUs";
-import CTARegister from "./CTARegister";
-import Footer from "./Footer";
-import HeroBanner from "./HeroBanner";
-import OnlineLearning from "./OnlineLearning";
-import RandomMentees from "./RandomMentees";
-import RandomMentors from "./RandomMentors";
-import Search from "./Search";
-import TopMentors from "./TopMentors";
 import TopNavbar from "./TopNavbar";
+import Landing from "./Landing";
+import HeroBanner from "./HeroBanner";
+import CTARegister from "./CTARegister";
+import Search from "./Search";
+import ProfileCard from "./profileCard/ProfileCard";
+import RandomMentors from "./RandomMentors";
+import TopMentors from "./TopMentors";
+import Mentors from "./Mentors";
+import RandomMentees from "./RandomMentees";
+import Mentees from "./Mentees";
+import OnlineLearning from "./OnlineLearning";
+import OnlineLearningDetails from "./OnlineLearningDetails";
+import Footer from "./Footer";
 
 export {
-  ProfileCard,
-  ProfileDetails,
-  AboutUs,
-  CTARegister,
-  Footer,
+  TopNavbar,
+  Landing,
   HeroBanner,
-  OnlineLearning,
-  RandomMentees,
-  RandomMentors,
+  CTARegister,
   Search,
+  ProfileCard,
   TopMentors,
-  TopNavbar
+  RandomMentors,
+  Mentors,
+  RandomMentees,
+  Mentees,
+  OnlineLearning,
+  OnlineLearningDetails,
+  AboutUs,
+  Footer
 };

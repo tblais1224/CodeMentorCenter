@@ -3,7 +3,10 @@ const config = require('config');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { check, validationResult } = require('express-validator');
+const nodemailer = require('nodemailer');
+const chalk = require('chalk');
 const User = require('../../models/User');
+const auth = require("../../middleware/auth")
 
 const router = express.Router();
 
@@ -23,6 +26,13 @@ router.post(
     check('password', 'Password must contain atleast (6) characters').isLength({
       min: 6,
     }),
+    check("password2").custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error("Password confirmation field must match the password field");
+      } else {
+        return true;
+      }
+    })
   ],
 
   async (req, res) => {
@@ -59,7 +69,32 @@ router.post(
 
       await user.save();
 
-      // 6. Return Token
+      // 6. Send Confirmation E-mail to New User!
+
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: 'codementorcenter@gmail.com',
+          pass: config.get('emailPass'),
+        },
+      });
+
+      const mailOptions = {
+        from: 'CodeMentorCenter@gmail.com',
+        to: email,
+        subject: 'Welcome to CodeMentorCenter!',
+        text: 'Welcome to CodeMentorCenter! More to come soon...',
+      };
+
+      transporter.sendMail(mailOptions, function(error, info) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log(`Email sent: ${info.response}`);
+        }
+      });
+
+      // 7. Return Token
 
       const payload = {
         user: {
@@ -81,6 +116,66 @@ router.post(
     } catch (err) {
       console.error(err.message);
       res.status(500).send('Server error');
+    }
+  }
+);
+
+// @route PUT api/register/updatepassword
+// @desc Update Password
+// @access private
+router.put(
+  "/updatepassword",
+  [
+    auth,
+    [
+      check(
+        "password",
+        "Password must contain atleast (6) characters"
+      ).isLength({
+        min: 6
+      }),
+      check("password2").custom((value, { req }) => {
+        if (value !== req.body.password) {
+          throw new Error(
+            "Password confirmation field must match the password field"
+          );
+        } else {
+          return true;
+        }
+      })
+    ]
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    try {
+
+      let password = req.body.password;
+      let newPassword = {};
+
+      // 4. Encrypt Password
+      const salt = await bcrypt.genSalt(10);
+      newPassword.password = await bcrypt.hash(password, salt);
+
+      user = await User.findOneAndUpdate(
+        {
+          _id: req.user.id
+        },
+        {
+          $set: newPassword
+        },
+        {
+          new: true
+        }
+      );
+      return res.json({
+        msg: "Password Updated"
+      });
+    } catch (err) {
+      console.error(err.message);
+      res.status(500).send("Server error");
     }
   }
 );
